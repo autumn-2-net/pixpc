@@ -110,7 +110,7 @@ class done:
             except Exception:
                 i = i + 1
 
-        self.Q_log.put({})
+        self.Q_log.put(str(self.id)+'http错误')
         return {'err': 'T'}
 
     def run(self):
@@ -119,17 +119,17 @@ class done:
         ctr = self.httpgat(arcl)
         # print(ctr)
         if ctr['err'] == 'T':
-            self.Q_log.put({})
+            self.Q_log.put(str(self.id)+'http错误')
             self.Q_out.put({'err': 'T', 'id': self.id})
             return 0
         try:
             ctrj = ctr['item'].json()
         except:
-            self.Q_log.put({})
+            self.Q_log.put(str(self.id)+'解析错误')
             self.Q_out.put({'err': 'T', 'id': self.id})
             return 0
         if ctrj['error']:
-            self.Q_log.put({})
+            self.Q_log.put(str(self.id)+'服务端错误')
             self.Q_out.put({'err': 'T', 'id': self.id,'item':{}})
             return 0
 
@@ -202,17 +202,17 @@ class done:
         ctr = self.httpgat(midl)
         # print(ctr)
         if ctr['err'] == 'T':
-            self.Q_log.put({})
+            self.Q_log.put(str(self.id)+'解析错误md')
             self.Q_out.put({'err': 'T', 'id': self.id})
             return 0
         try:
             ctrj = ctr['item'].json()
         except:
-            self.Q_log.put({})
+            self.Q_log.put(str(self.id)+'解析错误md')
             self.Q_out.put({'err': 'T', 'id': self.id})
             return 0
         if ctrj['error']:
-            self.Q_log.put({})
+            self.Q_log.put(str(self.id)+'服务端错误md')
             self.Q_out.put({'err': 'T', 'id': self.id})
             return 0
         # pprint.pprint(ctrj)
@@ -240,17 +240,17 @@ class done:
         ctr = self.httpgat(glink)
         # print(ctr)
         if ctr['err'] == 'T':
-            self.Q_log.put({})
+            self.Q_log.put(str(self.id)+'解析错误gif')
             self.Q_out.put({'err': 'T', 'id': self.id})
             return 0
         try:
             ctrj = ctr['item'].json()
         except:
-            self.Q_log.put({})
+            self.Q_log.put(str(self.id)+'解析错误gif')
             self.Q_out.put({'err': 'T', 'id': self.id})
             return 0
         if ctrj['error']:
-            self.Q_log.put({})
+            self.Q_log.put(str(self.id)+'服务端错误gif')
             self.Q_out.put({'err': 'T', 'id': self.id})
             return 0
         # pprint.pprint(ctrj)
@@ -265,7 +265,7 @@ class done:
         itemm = zipp['item'].content
         zipf = io.BytesIO(itemm)
         with zipfile.ZipFile(zipf, "r") as f2:
-            print(f2.namelist())
+            # print(f2.namelist())
             l = []
             p = []
             for file in frml:
@@ -273,13 +273,14 @@ class done:
                 p.append(file['delay'] / 1000)
             # print(file)
         ccc = imageio.mimsave('<bytes>', l, format='GIF', duration=p)
-        with open('test.gif', 'wb') as f:
-            f.write(ccc)
+        # with open('test.gif', 'wb') as f:
+        #     f.write(ccc)
         img = lzma.compress(ccc, preset=6)
         dbl = prp_datas(pid=self.id, img=[img], intruduct=info['illustComment'], age=info['age'],
                         author={info['uid']: info['userName']}, tag=info['tag'],
                         tag_fy=info['tag_fy'], title=info['title'], types=info['Ttype'], farm_time=frml,
                         org_zip=lzma.compress(itemm, preset=6))
+        self.Q_log.put(str(self.id)+'{g下载完成}')
         self.Q_out.put({'err': 'F', 'id': self.id, 'item': dbl})
 
     # print(dbl)
