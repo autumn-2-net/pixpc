@@ -38,6 +38,28 @@ def load_config(cfg:tcun):
 
 
 load_config(cfgg)
+app.mount("/js_css", StaticFiles(directory="./js_css"), name="js_css")
+def openf():
+    with open('./html/vic.vue','r',encoding='utf-8') as f:
+        ddd=f.read()
+    return ddd
+@app.get('/', response_class=HTMLResponse)
+def mainn():
+    return openf()
+@app.get('/apic')
+def apic(ids):
+    i = str(ids)
+    a = cfgg.db[cfgg.db_name]
+    fs = gridfs.GridFS(a)
+    acv = cfgg.db[cfgg.db_name]['pixiv']
+    t = acv.find_one({'p_id': i})
+    img = t['img']
+    ccc=[]
+    for idx,_ in enumerate(img):
+        ccc.append(f'/img?ids={i}&idx={idx}')
+
+
+    return ccc
 
 @app.get("/img")
 def image_endpoint(ids,idx):
@@ -50,8 +72,12 @@ def image_endpoint(ids,idx):
     img = t['img'][int(idx)]
     ig = fs.get(img).read()
     imm = lzma.decompress(ig)
+    cdvg = "image/png"
+    if t['type']=='g':
+        cdvg="image/gif"
 
-    return StreamingResponse(io.BytesIO(imm), media_type="image/png")
+
+    return StreamingResponse(io.BytesIO(imm), media_type=cdvg)
 
 if __name__ == "__main__":
     from hypercorn.asyncio import serve
